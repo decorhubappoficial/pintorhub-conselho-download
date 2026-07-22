@@ -1,13 +1,20 @@
 # PintorHUB Gestor - Conselho
 
-Canal oficial de instalacao da versao piloto Android do PintorHUB Gestor para o Conselho de Profissionais.
+Canal oficial de instalacao da versao Android destinada ao Conselho de Profissionais.
 
-## Baixar
+## Download
 
-[Baixar a versao mais recente do APK](https://raw.githubusercontent.com/decorhubappoficial/pintorhub-conselho-download/main/council/PintorHUB-Gestor-Conselho.apk?v=1.0.2-conselho.3)
+[Baixar a versao mais recente do APK](https://github.com/decorhubappoficial/pintorhub-conselho-download/releases/latest/download/PintorHUB-Gestor-Conselho.apk)
 
-Quem ja instalou a versao anterior deve escolher `Atualizar`. A licenca individual e os dados locais permanecem no aparelho.
+## Instalacao e atualizacao
 
-## Integridade da versao 1.0.2-conselho.3
+1. Baixe o APK pelo link acima.
+2. Se o Android solicitar, autorize a instalacao pelo navegador usado no download.
+3. Abra o arquivo e escolha `Instalar`.
+4. Se uma versao anterior ja estiver instalada, escolha `Atualizar`.
 
-SHA-256: `46960a24b01bfd99146d77fe9a1bd1ff18d5ea2659bda504c2e6cc141aaf99a7`
+A atualizacao por cima da versao anterior preserva a licenca individual e os dados locais do aplicativo.
+
+## Integridade
+
+O arquivo `council/PintorHUB-Gestor-Conselho.apk.sha256` permite conferir a copia mantida neste repositorio. Os downloads publicados em Releases tambem exibem o digest SHA-256 calculado pelo GitHub.

@@ -1,0 +1,30 @@
+# Arquivos de credenciais e chaves privadas
+.env
+.env.*
+*.key
+*.p8
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.mobileprovision
+*credentials*
+*secret*
+*token*
+
+# Recursos internos que nunca pertencem a este canal publico
+admin/
+**/admin/**
+*Emissor*
+*emissor*
+*Issuer*
+*issuer*
+*.phadmin
+*.phlic
+
+# Saidas locais e temporarias
+*.log
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db
