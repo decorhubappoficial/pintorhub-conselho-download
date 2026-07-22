@@ -47,10 +47,27 @@ try {
         }
     }
 
-    $publicText = @(
-        Get-Content -LiteralPath (Join-Path $root 'README.md') -Raw
-        Get-Content -LiteralPath (Join-Path $root 'council/PintorHUB-Gestor-Conselho.apk.sha256') -Raw
-    ) -join "`n"
+    $historicalFiles = @(
+        git log --all --format= --name-only |
+            Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+            Sort-Object -Unique
+    )
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Nao foi possivel listar os arquivos do historico Git.'
+    }
+
+    $unexpectedHistoricalFiles = @($historicalFiles | Where-Object { $_ -notin $allowedFiles })
+    if ($unexpectedHistoricalFiles.Count -gt 0) {
+        throw 'O historico Git contem um caminho que nao pertence ao allowlist publico.'
+    }
+
+    $publicTextFiles = @(
+        '.gitignore'
+        'README.md'
+        'council/PintorHUB-Gestor-Conselho.apk.sha256'
+        'scripts/validate-public-repo.ps1'
+        '.github/workflows/validate-public-repo.yml'
+    )
     $sensitiveTextPatterns = @(
         '-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----'
         'gh[pousr]_[A-Za-z0-9]{30,}'
@@ -61,9 +78,44 @@ try {
         'sk_(?:live|test)_[0-9A-Za-z]{16,}'
         'xox[baprs]-[0-9A-Za-z-]{10,}'
     )
-    foreach ($pattern in $sensitiveTextPatterns) {
-        if ($publicText -match $pattern) {
-            throw 'Um arquivo publico de texto contem um padrao de credencial proibido.'
+
+    $reachableCommits = @(git rev-list --all)
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Nao foi possivel listar os commits alcancaveis.'
+    }
+
+    $scannedTextBlobs = @{}
+    foreach ($commit in $reachableCommits) {
+        foreach ($path in $publicTextFiles) {
+            $treeEntry = @(git ls-tree $commit -- $path)
+            if ($LASTEXITCODE -ne 0) {
+                throw 'Nao foi possivel inspecionar uma arvore do historico Git.'
+            }
+            if ($treeEntry.Count -eq 0) {
+                continue
+            }
+
+            $entryParts = $treeEntry[0] -split '\s+', 4
+            if ($entryParts.Count -lt 3 -or $entryParts[1] -ne 'blob') {
+                throw 'Um arquivo de texto permitido nao corresponde a um blob Git valido.'
+            }
+
+            $blobId = $entryParts[2]
+            if ($scannedTextBlobs.ContainsKey($blobId)) {
+                continue
+            }
+
+            $blobText = (git cat-file blob $blobId) -join "`n"
+            if ($LASTEXITCODE -ne 0) {
+                throw 'Nao foi possivel ler um arquivo de texto do historico Git.'
+            }
+            $scannedTextBlobs[$blobId] = $true
+
+            foreach ($pattern in $sensitiveTextPatterns) {
+                if ($blobText -match $pattern) {
+                    throw 'Um arquivo publico de texto no historico contem um padrao de credencial proibido.'
+                }
+            }
         }
     }
 
